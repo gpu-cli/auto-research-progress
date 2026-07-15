@@ -11,6 +11,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "sync": "node scripts/sync-content.mjs",
+    "test": "node --test tests/*.test.mjs",
     "check": "astro check",
     "design:audit": "impeccable detect src",
     "deploy": "npm run build && wrangler deploy"

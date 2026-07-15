@@ -109,7 +109,7 @@ button { font: inherit; }
 .filter-bar { display: flex; gap: .4rem; padding: 1.1rem 0 2rem; overflow: auto; }
 .filter-bar button { background: transparent; color: var(--muted); border: 1px solid var(--faint); padding: .55rem .8rem; cursor: pointer; font: 500 .6rem var(--font-mono); text-transform: uppercase; letter-spacing: .04em; }
 .filter-bar button:hover, .filter-bar button.active { color: var(--paper); background: var(--ink); border-color: var(--ink); }
-.journal-row { border-top: 1px solid var(--faint); }
+.journal-row { border-top: 1px solid var(--faint); content-visibility: auto; contain-intrinsic-size: auto 170px; }
 .journal-row:last-child { border-bottom: 1px solid var(--faint); }
 .journal-row > a { min-height: 170px; display: grid; grid-template-columns: 54px minmax(0, 1fr) minmax(130px, 220px); gap: clamp(1rem, 3vw, 3rem); align-items: center; padding: 1.35rem .2rem; text-decoration: none; }
 .journal-row:hover { background: var(--paper-raised); }
@@ -120,6 +120,12 @@ button { font: inherit; }
 .row-end img { width: 100%; height: 92px; object-fit: cover; grid-column: 1 / -1; filter: saturate(.8) contrast(1.04); }
 .row-end > span { justify-self: end; font-size: 1rem; color: var(--accent); }
 .empty-filter { color: var(--muted); padding: 4rem 0; }
+.journal-sentinel { min-height: 96px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--faint); color: var(--muted); font: 500 .62rem var(--font-mono); text-transform: uppercase; letter-spacing: .05em; }
+.journal-load-button { min-height: 44px; border: 1px solid var(--faint); background: transparent; color: var(--ink); padding: .7rem 1rem; cursor: pointer; font: 500 .62rem var(--font-mono); text-transform: uppercase; letter-spacing: .05em; }
+.journal-load-button:hover, .journal-load-button:focus-visible { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.journal-load-button:disabled { cursor: wait; opacity: .55; }
+.journal-noscript { color: var(--muted); font-size: .8rem; }
+.archive-head a { text-underline-offset: .2em; }
 
 .site-footer { border-top: 1px solid var(--faint); padding: 2rem clamp(1.2rem, 4vw, 4.5rem); display: flex; justify-content: space-between; color: var(--muted); font: .6rem/1.5 var(--font-mono); }
 .site-footer p { margin: 0; }

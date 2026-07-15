@@ -1,0 +1,24 @@
+---
+import type { JournalCard } from '../lib/journal';
+
+interface Props {
+  entry: JournalCard;
+}
+
+const { entry } = Astro.props;
+---
+<article class="journal-row" data-kind={entry.kind}>
+  <a href={entry.url}>
+    <div class="row-index">{entry.index}</div>
+    <div class="row-copy">
+      <div class="story-meta"><span>{entry.kind}</span><span>{entry.status}</span></div>
+      <h3>{entry.title}</h3>
+      <p>{entry.summary}</p>
+    </div>
+    <div class="row-end">
+      {entry.image && <img src={entry.image} alt="" loading="lazy" />}
+      <time datetime={entry.date}>{entry.dateShort}</time>
+      <span aria-hidden="true">↗</span>
+    </div>
+  </a>
+</article>
