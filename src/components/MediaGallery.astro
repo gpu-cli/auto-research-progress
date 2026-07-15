@@ -1,0 +1,44 @@
+---
+type MediaItem = {
+  type: 'image' | 'video' | 'stream' | 'comparison';
+  src: string;
+  alt?: string;
+  caption?: string;
+  poster?: string;
+  before?: string;
+  after?: string;
+};
+
+const { items = [] } = Astro.props as { items: MediaItem[] };
+---
+
+{items.length > 0 && (
+  <section class="media-gallery not-typeset" aria-label="Research artifacts">
+    <div class="section-label"><span>Evidence</span><span>{items.length} artifact{items.length === 1 ? '' : 's'}</span></div>
+    <div class="media-grid">
+      {items.map((item) => (
+        <figure class:list={['media-item', { comparison: item.type === 'comparison' }]}>
+          {item.type === 'image' && <img src={item.src} alt={item.alt ?? ''} loading="lazy" decoding="async" />}
+          {item.type === 'video' && (
+            <video controls preload="metadata" poster={item.poster} playsinline>
+              <source src={item.src} />
+              <a href={item.src}>Download video</a>
+            </video>
+          )}
+          {item.type === 'stream' && (
+            <div class="stream-frame">
+              <iframe src={item.src} title={item.alt ?? 'Research video'} allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+            </div>
+          )}
+          {item.type === 'comparison' && (
+            <div class="comparison-pair">
+              <div><span>Reference</span><img src={item.before ?? item.src} alt={`${item.alt ?? 'Comparison'} reference`} loading="lazy" /></div>
+              <div><span>Candidate</span><img src={item.after ?? item.src} alt={`${item.alt ?? 'Comparison'} candidate`} loading="lazy" /></div>
+            </div>
+          )}
+          {item.caption && <figcaption>{item.caption}</figcaption>}
+        </figure>
+      ))}
+    </div>
+  </section>
+)}

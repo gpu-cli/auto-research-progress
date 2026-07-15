@@ -1,0 +1,27 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+---
+<SiteLayout title="System" description="How research notes and multimedia evidence reach this progress site.">
+  <article class="entry-shell system-page">
+    <header class="entry-header compact">
+      <div class="entry-kicker"><span class="status-dot published"></span><span>Publishing system</span></div>
+      <h1>Research should leave<br />inspectable evidence.</h1>
+      <p class="entry-deck">Markdown remains the source of truth. Astro turns it into an append-only journal; Cloudflare carries the page and its visual evidence.</p>
+    </header>
+    <div class="system-grid">
+      <section><span class="system-num">01</span><h2>Write</h2><p>Plain Markdown or MDX, with optional typed frontmatter for status, tags, and attached media.</p></section>
+      <section><span class="system-num">02</span><h2>Attach</h2><p>Images can stay with the build or move to Images/R2. Video can use native files or Cloudflare Stream embeds.</p></section>
+      <section><span class="system-num">03</span><h2>Publish</h2><p>A static Astro build deploys globally. Old entries remain addressable and the newest work leads the journal.</p></section>
+    </div>
+    <div class="typeset typeset-report article-body system-prose">
+      <h2>Cloudflare media strategy</h2>
+      <table><thead><tr><th>Output</th><th>Default</th><th>Move when</th></tr></thead><tbody>
+        <tr><td>Small UI assets</td><td>Workers static assets</td><td>Keep immutable and under 25 MiB each.</td></tr>
+        <tr><td>Experiment images</td><td>Cloudflare Images</td><td>You need responsive variants, optimization, signed access, or direct uploads.</td></tr>
+        <tr><td>Raw files / datasets</td><td>R2</td><td>Assets are large, numerous, downloadable, or should not inflate every site deployment.</td></tr>
+        <tr><td>Video evidence</td><td>Cloudflare Stream</td><td>You need adaptive bitrate playback, encoding, thumbnails, captions, analytics, or signed URLs.</td></tr>
+      </tbody></table>
+      <p>For this project: deploy the Astro output as Workers static assets, put generated images in Images (or R2 behind image transforms), and put review clips in Stream. Keep original experiment artifacts in R2; publish optimized derivatives in the journal.</p>
+    </div>
+  </article>
+</SiteLayout>

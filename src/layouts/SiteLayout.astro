@@ -1,0 +1,54 @@
+---
+import '@fontsource-variable/manrope/index.css';
+import '@fontsource-variable/newsreader/index.css';
+import '@fontsource-variable/jetbrains-mono/index.css';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const {
+  title = 'Research Progress',
+  description = 'Experiments, evidence, and engineering progress from the Forge research loop.',
+} = Astro.props;
+const pageTitle = title === 'Research Progress' ? title : `${title} — Research Progress`;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f2f0e9" />
+    <title>{pageTitle}</title>
+    <script is:inline>
+      const mode = localStorage.getItem('progress-theme');
+      if (mode === 'dark' || (!mode && matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.dataset.theme = 'dark';
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Skip to content</a>
+    <header class="site-header">
+      <a class="wordmark" href="/"><span class="mark" aria-hidden="true"></span><span>Research Progress</span></a>
+      <nav aria-label="Primary">
+        <a href="/">Journal</a>
+        <a href="/about/">System</a>
+        <button class="theme-toggle" type="button" aria-label="Toggle color theme"><span aria-hidden="true">◐</span></button>
+      </nav>
+    </header>
+    <main id="content"><slot /></main>
+    <footer class="site-footer">
+      <p>Evidence before claims. Built from append-only research notes.</p>
+      <p><a href="https://github.com/pbakaus/impeccable">Impeccable</a> × <a href="https://ui.shadcn.com/docs/typeset">Typeset</a> × <a href="https://astro.build">Astro</a></p>
+    </footer>
+    <script is:inline>
+      document.querySelector('.theme-toggle')?.addEventListener('click', () => {
+        const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        localStorage.setItem('progress-theme', next);
+      });
+    </script>
+  </body>
+</html>

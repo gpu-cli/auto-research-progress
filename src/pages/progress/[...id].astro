@@ -1,0 +1,15 @@
+---
+import { getCollection, render } from 'astro:content';
+import ProgressLayout from '../../layouts/ProgressLayout.astro';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('progress');
+  return entries.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+<ProgressLayout entry={entry}>
+  <Content />
+</ProgressLayout>
