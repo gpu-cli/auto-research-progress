@@ -27,6 +27,7 @@ pnpm-debug.log*
 .playwright-libs/
 home-desktop*.png
 entry-mobile*.png
+optical-*.png
 .wrangler/
 
 # impeccable-ignore-start
