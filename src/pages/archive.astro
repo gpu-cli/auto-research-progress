@@ -1,0 +1,22 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import JournalRow from '../components/JournalRow.astro';
+import { getJournal, toJournalCard } from '../lib/journal';
+
+const { remaining } = await getJournal();
+const cards = remaining.map(toJournalCard);
+---
+<SiteLayout title="Static Research Archive" description="Complete static index of every research progress entry.">
+  <section class="entry-header compact">
+    <a class="back-link" href="/">← Interactive journal</a>
+    <div class="entry-kicker">Static index / {cards.length} entries</div>
+    <h1>Complete research archive</h1>
+    <p class="entry-deck">A no-JavaScript, search-engine-readable index of every permanent research entry. Newest first.</p>
+  </section>
+  <section class="archive static-archive" aria-labelledby="archive-heading">
+    <header class="archive-head"><h2 id="archive-heading">All entries</h2><p>Static HTML · newest first</p></header>
+    <div class="journal-list">
+      {cards.map((entry) => <JournalRow entry={entry} />)}
+    </div>
+  </section>
+</SiteLayout>

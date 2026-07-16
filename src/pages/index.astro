@@ -1,29 +1,20 @@
 ---
-import { getCollection } from 'astro:content';
 import SiteLayout from '../layouts/SiteLayout.astro';
+import JournalRow from '../components/JournalRow.astro';
+import {
+  getJournal,
+  JOURNAL_PAGE_SIZE,
+  titleOf,
+  summaryOf,
+  imageOf,
+  dateOf,
+  toJournalCard,
+} from '../lib/journal';
 
-const entries = (await getCollection('progress')).sort((a, b) => {
-  const ad = a.data.date ?? a.data.updated ?? new Date(0);
-  const bd = b.data.date ?? b.data.updated ?? new Date(0);
-  return bd.valueOf() - ad.valueOf();
-});
-
-const titleOf = (entry: (typeof entries)[number]) => entry.data.title ?? (entry.body ?? '').match(/^#\s+(.+)$/m)?.[1] ?? entry.id;
-const summaryOf = (entry: (typeof entries)[number]) => {
-  if (entry.data.description) return entry.data.description;
-  const paragraphs = (entry.body ?? '').split(/\n\s*\n/).map((p) => p.replace(/[#*_`>\[\]]/g, '').replace(/\([^)]*\)/g, '').trim());
-  return paragraphs.find((p) => p.length > 70 && !p.startsWith('|') && !p.startsWith('!'))?.slice(0, 210) ?? 'Research note and supporting evidence.';
-};
-const imageOf = (entry: (typeof entries)[number]) => {
-  const media = entry.data.media.find((item) => item.type === 'image' || item.type === 'comparison');
-  if (media) return media.src;
-  const match = (entry.body ?? '').match(/!\[[^\]]*\]\(([^)]+\.(?:png|jpe?g|webp|avif|bmp))(?:\s+"[^"]*")?\)/i);
-  if (!match) return undefined;
-  return match[1].replace(/^\.\.\/assets\//, '/assets/').replace(/^assets\//, '/assets/');
-};
-const featured = entries.find((e) => e.data.featured) ?? entries.find((e) => imageOf(e)) ?? entries[0];
-const remaining = entries.filter((e) => e !== featured);
-const dateOf = (entry: (typeof entries)[number]) => entry.data.date ?? entry.data.updated;
+const { entries, featured, remaining } = await getJournal();
+const cards = remaining.map(toJournalCard);
+const initialCards = cards.slice(0, JOURNAL_PAGE_SIZE);
+const nextCursor = cards.length > JOURNAL_PAGE_SIZE ? '2' : '';
 ---
 <SiteLayout>
   <section class="journal-intro">
@@ -38,7 +29,7 @@ const dateOf = (entry: (typeof entries)[number]) => entry.data.date ?? entry.dat
   {featured && (
     <section class="lead-story" aria-labelledby="lead-title">
       <a class="lead-copy" href={`/progress/${featured.id}/`}>
-        <div class="story-meta"><span>{featured.data.kind}</span><span>{featured.data.status}</span>{dateOf(featured) && <time>{dateOf(featured)?.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</time>}</div>
+        <div class="story-meta"><span>{featured.data.kind}</span><span>{featured.data.status}</span>{dateOf(featured) && <time>{dateOf(featured)?.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</time>}</div>
         <h2 id="lead-title">{titleOf(featured)}</h2>
         <p>{summaryOf(featured)}</p>
         <span class="read-link">Read the evidence <span aria-hidden="true">↗</span></span>
@@ -48,22 +39,43 @@ const dateOf = (entry: (typeof entries)[number]) => entry.data.date ?? entry.dat
   )}
 
   <section class="archive" aria-labelledby="archive-heading">
-    <header class="archive-head"><h2 id="archive-heading">Research journal</h2><p>Newest first · permanent archive</p></header>
+    <header class="archive-head"><h2 id="archive-heading">Research journal</h2><p>Newest first · <a href="/archive/">static index</a></p></header>
     <div class="filter-bar" role="group" aria-label="Filter journal">
       {['all', 'experiment', 'report', 'paper', 'note'].map((kind) => <button type="button" data-filter={kind} class:list={{ active: kind === 'all' }}>{kind}</button>)}
     </div>
-    <div class="journal-list">
-      {remaining.map((entry, index) => (
-        <article class="journal-row" data-kind={entry.data.kind}>
-          <a href={`/progress/${entry.id}/`}>
-            <div class="row-index">{String(index + 1).padStart(2, '0')}</div>
-            <div class="row-copy"><div class="story-meta"><span>{entry.data.kind}</span><span>{entry.data.status}</span></div><h3>{titleOf(entry)}</h3><p>{summaryOf(entry)}</p></div>
-            <div class="row-end">{imageOf(entry) && <img src={imageOf(entry)} alt="" loading="lazy" />}<time>{dateOf(entry)?.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) ?? 'Undated'}</time><span aria-hidden="true">↗</span></div>
-          </a>
-        </article>
-      ))}
+    <div
+      class="journal-list"
+      data-next-cursor={nextCursor}
+      data-total={cards.length}
+      aria-busy="false"
+      aria-live="polite"
+    >
+      {initialCards.map((entry) => <JournalRow entry={entry} />)}
     </div>
     <p class="empty-filter" hidden>No entries in this lane yet.</p>
+    <div class="journal-sentinel" data-journal-sentinel>
+      <span class="journal-load-status" aria-live="polite">{nextCursor ? `${initialCards.length} of ${cards.length} entries loaded` : `All ${cards.length} entries loaded`}</span>
+      <button class="journal-load-button" type="button" hidden={!nextCursor}>Load more</button>
+    </div>
+    <noscript><p class="journal-noscript">Infinite loading requires JavaScript. <a href="/archive/">Open the complete static archive</a>.</p></noscript>
   </section>
+
+  <template id="journal-row-template">
+    <article class="journal-row" data-kind="">
+      <a data-field="url">
+        <div class="row-index" data-field="index"></div>
+        <div class="row-copy">
+          <div class="story-meta"><span data-field="kind"></span><span data-field="status"></span></div>
+          <h3 data-field="title"></h3>
+          <p data-field="summary"></p>
+        </div>
+        <div class="row-end">
+          <span data-field="image-slot"></span>
+          <time data-field="date"></time>
+          <span aria-hidden="true">↗</span>
+        </div>
+      </a>
+    </article>
+  </template>
   <script is:inline src="/journal-filter.js" defer></script>
 </SiteLayout>
